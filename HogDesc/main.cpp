@@ -1,6 +1,5 @@
 #include <iostream>
 #include <vector>
-#include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 #include "HogDescriptor.h"
 
@@ -20,6 +19,6 @@ int main(){
     hog->compute(src, descriptors, Size(1, 1), Size(3, 3));
 
     for (auto d: descriptors) {
-//        cout << d << endl;
+        cout << d << endl;
     }
 }

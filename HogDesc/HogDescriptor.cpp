@@ -236,6 +236,7 @@ namespace cv
 
         Size gradsize(img.cols + paddingTL.width + paddingBR.width,
                       img.rows + paddingTL.height + paddingBR.height);
+        printf("gradsize: %d,%d\n",gradsize.height,gradsize.width);
         _grad.create(gradsize, CV_32FC2);  // <magnitude*(1-alpha), magnitude*alpha>
         _qangle.create(gradsize, CV_8UC2); // [0..nbins-1] - quantized gradient orientation
         Mat grad = _grad.getMat();
@@ -244,7 +245,8 @@ namespace cv
         Size wholeSize;
         Point roiofs;
         img.locateROI(wholeSize, roiofs);
-        printf("wholesize: %d, %d",wholeSize.height, wholeSize.width);
+        printf("wholesize: %d, %d\n",wholeSize.height, wholeSize.width);
+        printf("paddingTL.height: %d,%d\n",paddingTL.height,paddingTL.width);
 
         int i, x, y;
         int cn = img.channels();
@@ -289,8 +291,10 @@ namespace cv
                                         wholeSize.width, borderType) - roiofs.x;
         }
         for( y = -1; y < gradsize.height + 1; y++ )
+        {
             ymap[y] = borderInterpolate(y - paddingTL.height + roiofs.y,
                                         wholeSize.height, borderType) - roiofs.y;
+        }
 
         // x- & y- derivatives for the whole row
         int width = gradsize.width;
@@ -561,7 +565,9 @@ namespace cv
             {
                 float mag = dbuf[x+width*2], angle = dbuf[x+width*3]*angleScale - 0.5f;
                 int hidx = cvFloor(angle);
+                printf("hidx: %d, %f\n",hidx, angle);
                 angle -= hidx;
+                printf("angle: %f\n",angle);
                 gradPtr[x*2] = mag*(1.f - angle);
                 gradPtr[x*2+1] = mag*angle;
 
@@ -570,12 +576,16 @@ namespace cv
                 else if( hidx >= nbins )
                     hidx -= nbins;
 
+                printf("hidx: %d\n",hidx);
                 CV_Assert( (unsigned)hidx < (unsigned)nbins );
 
                 qanglePtr[x*2] = (uchar)hidx;
                 hidx++;
                 hidx &= hidx < nbins ? -1 : 0;
                 qanglePtr[x*2+1] = (uchar)hidx;
+
+                printf("qangle: %d, %d\n",(int)qanglePtr[x*2],(int)qanglePtr[x*2 + 1]);
+                getchar();
             }
         }
     }
